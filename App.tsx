@@ -29,17 +29,23 @@ function App() {
     const uploadPromises = DIGITS.map(async (digit) => {
       const canvasHandle = canvasRefs.current[digit];
       if (!canvasHandle) {
-        return { digit, success: false, message: 'Canvas not initialized' };
+        return { digit, success: false, message: 'Canvas not initialized', skipped: false };
       }
 
       const { blob, isEmpty } = await canvasHandle.getData();
 
       if (isEmpty || !blob) {
-        return { digit, success: true, skipped: true };
+        return { digit, success: true, skipped: true, message: undefined };
       }
 
       const result = await uploadDigit(digit, blob);
-      return { digit, ...result };
+      // Map the service result (error) to the component state (message)
+      return { 
+        digit, 
+        success: result.success, 
+        message: result.error,
+        skipped: false
+      };
     });
 
     try {
@@ -88,7 +94,7 @@ function App() {
           <DigitCanvas
             key={digit}
             digit={digit}
-            ref={(el) => (canvasRefs.current[digit] = el)}
+            ref={(el) => { canvasRefs.current[digit] = el; }}
           />
         ))}
       </div>
@@ -117,7 +123,7 @@ function App() {
                 {results.some(r => !r.success) && (
                   <div className="text-red-600 flex items-center gap-2">
                     <XCircle className="h-4 w-4" />
-                    <span>Errors: {results.filter(r => !r.success).map(r => `Digit ${r.digit} (${r.message})`).join('; ')}</span>
+                    <span>Errors: {results.filter(r => !r.success).map(r => `Digit ${r.digit} (${r.message || 'Unknown error'})`).join('; ')}</span>
                   </div>
                 )}
                 {results.every(r => r.skipped) && (

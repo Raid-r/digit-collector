@@ -27,19 +27,23 @@ export const uploadDigit = async (digit: number, blob: Blob): Promise<{ success:
 
     if (error) {
       console.error(`Error uploading digit ${digit}:`, error);
-      return { success: false, error: error.message };
+      // Robustly extract error message
+      const errorMessage = error.message || (typeof error === 'object' ? JSON.stringify(error) : String(error)) || "Unknown Supabase error";
+      return { success: false, error: errorMessage };
     }
 
     return { success: true };
   } catch (err: any) {
     console.error(`Unexpected error uploading digit ${digit}:`, err);
-    return { success: false, error: err.message || 'Unknown error' };
+    // Robustly extract catch error message
+    const errorMessage = err.message || (typeof err === 'string' ? err : JSON.stringify(err)) || 'Unknown error';
+    return { success: false, error: errorMessage };
   }
 };
 
 export const checkConfig = () => {
   return (
-    SUPABASE_URL !== "https://YOUR-PROJECT-ID.supabase.co" &&
-    SUPABASE_ANON_KEY !== "YOUR-ANON-PUBLIC-KEY"
+    (SUPABASE_URL as string) !== "https://YOUR-PROJECT-ID.supabase.co" &&
+    (SUPABASE_ANON_KEY as string) !== "YOUR-ANON-PUBLIC-KEY"
   );
 };
