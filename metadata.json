@@ -1,0 +1,5 @@
+{
+  "name": "Copy of MNIST Data Collector",
+  "description": "A collaborative tool to collect handwritten digits for machine learning datasets. Users can draw digits 0-9 and upload them to Supabase.",
+  "requestFramePermissions": []
+}
